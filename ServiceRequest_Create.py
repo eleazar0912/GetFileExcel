@@ -25,15 +25,30 @@ for elem in lista:
         #Set Service Request
         urlServiceRequestSet = "https://"+urlIFS+"/main/ifsapplications/projection/v1/RequestHandling.svc/SrvRequestVirtualSet"
         body = json.dumps(elem)
-        print(body)
+        #print(body)
         postServiceRequestSet = requests.post(urlServiceRequestSet, data=body,headers=header)
-        #print(postServiceRequestSet)
-        getObjkey = postServiceRequestSet.json()['Objkey']
+        print(postServiceRequestSet)
+        if postServiceRequestSet.status_code == 201:
+            getObjkey = postServiceRequestSet.json()['Objkey']
 
-        #Create Service Request
-        urlCreateServiceRequestSet = "https://"+urlIFS+"/main/ifsapplications/projection/v1/RequestHandling.svc/SrvRequestVirtualSet(Objkey='"+getObjkey+"')/IfsApp.RequestHandling.SrvRequestVirtual_Finish"
-        postServiceRequestSet = requests.post(urlCreateServiceRequestSet,headers=header)
-        print(postServiceRequestSet.json()['NewReqId'])
+            #Create Service Request
+            urlCreateServiceRequestSet = "https://"+urlIFS+"/main/ifsapplications/projection/v1/RequestHandling.svc/SrvRequestVirtualSet(Objkey='"+getObjkey+"')/IfsApp.RequestHandling.SrvRequestVirtual_Finish"
+            postServiceRequestSet = requests.post(urlCreateServiceRequestSet,headers=header)
+            if postServiceRequestSet.status_code ==201 or postServiceRequestSet.status_code==200:
+                elem['NewReqId'] = postServiceRequestSet.json()['NewReqId']
+                bodyDebug = json.dumps(elem)
+                with open("ServiceRequests_OK.txt", "a+") as myfile:
+                    myfile.write(bodyDebug)
+                print(postServiceRequestSet.json()['NewReqId'])
+                
+                
+                
+            else:
+                with open("ServiceRequests_NOK.txt", "a+") as myfile:
+                    myfile.write(body)
+                print('NOK___')
         
     else:
         print('NOK: status',getLocationSet.status_code)
+        with open("ServiceRequests_NOK.txt", "w") as myfile:
+            myfile.write(body+'\n'+getLocationSet.json())
