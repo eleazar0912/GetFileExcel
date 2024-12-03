@@ -10,6 +10,11 @@ urlIFS_token = generateToken()
 urlIFS = urlIFS_token['urlEndpoint']
 tokenIFS = urlIFS_token['token']
 header = {"Authorization":tokenIFS}
+with open("ServiceRequests_OK.txt", "a+") as myfile:
+    myfile.write('[')
+with open("ServiceRequests_NOK.txt", "a+") as myfile:
+    myfile.write('[')
+
 
 for elem in lista:
     # Get AddressId
@@ -38,7 +43,7 @@ for elem in lista:
                 elem['NewReqId'] = postServiceRequestSet.json()['NewReqId']
                 bodyDebug = json.dumps(elem)
                 with open("ServiceRequests_OK.txt", "a+") as myfile:
-                    myfile.write(bodyDebug)
+                    myfile.write(bodyDebug+',')
                 print(postServiceRequestSet.json()['NewReqId'])
                 
                 
@@ -52,3 +57,8 @@ for elem in lista:
         print('NOK: status',getLocationSet.status_code)
         with open("ServiceRequests_NOK.txt", "w") as myfile:
             myfile.write(body+'\n'+getLocationSet.json())
+
+with open("ServiceRequests_OK.txt", "a+") as myfile:
+    myfile.write(']')
+with open("ServiceRequests_NOK.txt", "a+") as myfile:
+    myfile.write(']')
